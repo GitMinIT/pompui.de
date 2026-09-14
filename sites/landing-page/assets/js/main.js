@@ -128,9 +128,6 @@
         ["#d5d86c", "213, 216, 108"]
     ];
 
-    const implementedActivities = activities.filter((activity) => activity.implemented);
-    const previewActivities = activities.filter((activity) => !activity.implemented);
-
     dummyActivities.forEach((entry, index) => {
         const accent = dummyAccents[index % dummyAccents.length];
         activities.push({
@@ -147,6 +144,10 @@
             action: "Noch nicht verfügbar"
         });
     });
+
+    // Split AFTER the preview entries have been appended.
+    const implementedActivities = activities.filter((activity) => activity.implemented);
+    const previewActivities = activities.filter((activity) => !activity.implemented);
 
     const iconPaths = {
         subscriptions: ["M15 15h14v14H15z", "M35 15h14v14H35z", "M15 35h14v14H15z", "M35 35h14v14H35z"],
@@ -566,7 +567,10 @@
     function appendSubscriptionCards(grid, categoryActivities) {
         categoryActivities.forEach((activity) => {
             const item = createElement("label", "subscription-card");
-            if (!activity.implemented) item.classList.add("subscription-card--preview");
+            if (!activity.implemented) {
+                item.classList.add("subscription-card--preview");
+                item.classList.toggle("is-unlocked", debugMode);
+            }
             const input = createElement("input", "subscription-checkbox");
             input.type = "checkbox";
             input.dataset.subscriptionActivity = activity.id;
@@ -585,11 +589,10 @@
 
     function flashPreviewIcons() {
         dialogContent.querySelectorAll(".subscription-card--preview").forEach((card, index) => {
-            card.style.setProperty("--flash-delay", `${index * 45}ms`);
+            card.style.setProperty("--flash-delay", `${index * 40}ms`);
             card.classList.remove("is-flash");
             void card.offsetWidth;
             card.classList.add("is-flash");
-            card.addEventListener("animationend", () => card.classList.remove("is-flash"), { once: true });
         });
     }
 
@@ -635,10 +638,11 @@
         dialog.showModal();
     }
 
-    dialogContent.addEventListener("change", (event) => {
+    dialog.addEventListener("change", (event) => {
         const input = event.target;
         if (!(input instanceof HTMLInputElement)) return;
-        if (input.dataset.subscriptionDebug) {
+        if (input.dataset.subscriptionDebug !== undefined) {
+            const wasDebugMode = debugMode;
             debugMode = input.checked;
             writeDebugMode(debugMode);
             if (!debugMode) {
@@ -646,10 +650,11 @@
                 pendingSubscriptions = new Set([...pendingSubscriptions].filter((id) => implementedActivities.some((activity) => activity.id === id)));
             }
             renderSubscriptionDialog();
-            if (debugMode) flashPreviewIcons();
+            if (debugMode && !wasDebugMode) flashPreviewIcons();
             return;
         }
         if (input.dataset.subscriptionActivity) {
+            if (!debugMode && previewActivities.some((activity) => activity.id === input.dataset.subscriptionActivity)) return;
             if (input.checked) pendingSubscriptions.add(input.dataset.subscriptionActivity);
             else pendingSubscriptions.delete(input.dataset.subscriptionActivity);
         }

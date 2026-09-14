@@ -1061,12 +1061,14 @@ svg {
     margin-top: 0;
 }
 
+/* Preview (not implemented) activities — grayed out while debug is off. */
 .subscription-card--preview {
     opacity: 0.45;
     filter: grayscale(0.85);
     background:
         linear-gradient(135deg, color-mix(in srgb, var(--card-accent) 4%, transparent), transparent 55%),
         var(--surface-tile);
+    cursor: not-allowed;
 }
 
 .subscription-card--preview:hover {
@@ -1074,11 +1076,7 @@ svg {
     transform: none;
 }
 
-.subscription-card--preview.is-locked {
-    cursor: not-allowed;
-}
-
-.subscription-card--preview.is-locked .subscription-checkbox {
+.subscription-card--preview .subscription-checkbox {
     pointer-events: none;
 }
 
@@ -1086,30 +1084,41 @@ svg {
     color: var(--muted);
 }
 
-.subscription-card--preview.is-flash {
-    animation: preview-icon-flash 900ms ease-out both;
+/* Debug mode on: full color, selectable. */
+.subscription-card--preview.is-unlocked {
+    opacity: 1;
+    filter: none;
+    cursor: pointer;
+}
+
+.subscription-card--preview.is-unlocked:hover {
+    border-color: color-mix(in srgb, var(--card-accent) 62%, var(--text));
+    transform: translateY(-0.08rem);
+}
+
+/* Short glow-up when debug is switched on, then settle into the colored state. */
+.subscription-card--preview.is-flash .subscription-card__icon-surface {
+    animation: preview-icon-flash 700ms ease-out both;
     animation-delay: var(--flash-delay, 0ms);
 }
 
 @keyframes preview-icon-flash {
     0% {
-        opacity: 0.45;
-        filter: grayscale(0.85);
+        opacity: 0.35;
+        filter: grayscale(0.9);
+        box-shadow: none;
     }
-    35% {
+    40% {
         opacity: 1;
-        filter: grayscale(0) saturate(1.6);
-        box-shadow: 0 0 0 1px color-mix(in srgb, var(--card-accent) 65%, transparent),
-            0 0 18px color-mix(in srgb, var(--card-accent) 55%, transparent),
-            0 0 42px rgba(var(--accent-rgb), 0.35);
-    }
-    70% {
-        opacity: 1;
-        filter: grayscale(0.2) saturate(1.15);
+        filter: grayscale(0) saturate(1.8) brightness(1.2);
+        box-shadow:
+            0 0 10px color-mix(in srgb, var(--card-accent) 70%, transparent),
+            0 0 26px color-mix(in srgb, var(--card-accent) 50%, transparent);
     }
     100% {
-        opacity: 0.45;
-        filter: grayscale(0.85);
+        opacity: 1;
+        filter: none;
+        box-shadow: none;
     }
 }
 
