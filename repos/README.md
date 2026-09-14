@@ -17,7 +17,7 @@ repos/
   punctum/        # github.com/GitMinIT/Punctum (timer/stopwatch/alarm/pomodoro, MIT)
   garden-journal/ # github.com/DaScoob/Garden-Journal (Mein Gemüsegarten, Next.js/vinext, port 3000)
   snapotter/      # github.com/snapotter-hq/SnapOtter @v2.2.0 (file processing, AGPL-3.0, port 1349)
-  vtracer/        # github.com/visioncortex/vtracer (raster→vector, MIT/Apache-2.0, built from source, port 8080)
+  vtracer/        # DaScoob/vtracer:feature/pompui-ui (POMPUI fork; upstream visioncortex core, MIT/Apache-2.0, port 8080)
 ```
 
 **Special case — snapotter (AGPL-3.0):** the compose service does **not**
