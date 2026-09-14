@@ -1009,6 +1009,32 @@ svg {
     white-space: nowrap;
 }
 
+.subscription-dialog__debug {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.45rem 0.85rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    user-select: none;
+}
+
+.subscription-dialog__debug:hover {
+    border-color: color-mix(in srgb, var(--accent) 62%, var(--line));
+    color: var(--text);
+}
+
+.subscription-dialog__debug-label {
+    pointer-events: none;
+}
+
 .subscription-dialog__content {
     display: grid;
     overflow-y: auto;
@@ -1023,6 +1049,77 @@ svg {
     border: 1px solid var(--line);
     border-radius: 1.25rem;
     background: color-mix(in srgb, var(--surface) 78%, transparent);
+}
+
+.subscription-category__separator {
+    margin-top: 0.85rem;
+    padding-top: 0.85rem;
+    border-top: 1px solid var(--line);
+}
+
+.subscription-grid--preview {
+    margin-top: 0;
+}
+
+/* Preview (not implemented) activities — grayed out while debug is off. */
+.subscription-card--preview {
+    opacity: 0.45;
+    filter: grayscale(0.85);
+    background:
+        linear-gradient(135deg, color-mix(in srgb, var(--card-accent) 4%, transparent), transparent 55%),
+        var(--surface-tile);
+    cursor: not-allowed;
+}
+
+.subscription-card--preview:hover {
+    border-color: var(--line);
+    transform: none;
+}
+
+.subscription-card--preview .subscription-checkbox {
+    pointer-events: none;
+}
+
+.subscription-card--preview .subscription-card__meta {
+    color: var(--muted);
+}
+
+/* Debug mode on: full color, selectable. */
+.subscription-card--preview.is-unlocked {
+    opacity: 1;
+    filter: none;
+    cursor: pointer;
+}
+
+.subscription-card--preview.is-unlocked:hover {
+    border-color: color-mix(in srgb, var(--card-accent) 62%, var(--text));
+    transform: translateY(-0.08rem);
+}
+
+/* Short glow-up when debug is switched on, then settle into the colored state. */
+.subscription-card--preview.is-flash .subscription-card__icon-surface {
+    animation: preview-icon-flash 700ms ease-out both;
+    animation-delay: var(--flash-delay, 0ms);
+}
+
+@keyframes preview-icon-flash {
+    0% {
+        opacity: 0.35;
+        filter: grayscale(0.9);
+        box-shadow: none;
+    }
+    40% {
+        opacity: 1;
+        filter: grayscale(0) saturate(1.8) brightness(1.2);
+        box-shadow:
+            0 0 10px color-mix(in srgb, var(--card-accent) 70%, transparent),
+            0 0 26px color-mix(in srgb, var(--card-accent) 50%, transparent);
+    }
+    100% {
+        opacity: 1;
+        filter: none;
+        box-shadow: none;
+    }
 }
 
 .subscription-category__header,
@@ -1447,6 +1544,14 @@ svg {
         padding: 0.35rem 0.55rem;
         white-space: normal;
         text-align: right;
+    }
+
+    .subscription-dialog__debug {
+        padding: 0.35rem 0.6rem;
+    }
+
+    .subscription-dialog__debug-label {
+        display: none;
     }
 
     .subscription-grid {
