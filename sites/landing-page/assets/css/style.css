@@ -1074,8 +1074,43 @@ svg {
     transform: none;
 }
 
+.subscription-card--preview.is-locked {
+    cursor: not-allowed;
+}
+
+.subscription-card--preview.is-locked .subscription-checkbox {
+    pointer-events: none;
+}
+
 .subscription-card--preview .subscription-card__meta {
     color: var(--muted);
+}
+
+.subscription-card--preview.is-flash {
+    animation: preview-icon-flash 900ms ease-out both;
+    animation-delay: var(--flash-delay, 0ms);
+}
+
+@keyframes preview-icon-flash {
+    0% {
+        opacity: 0.45;
+        filter: grayscale(0.85);
+    }
+    35% {
+        opacity: 1;
+        filter: grayscale(0) saturate(1.6);
+        box-shadow: 0 0 0 1px color-mix(in srgb, var(--card-accent) 65%, transparent),
+            0 0 18px color-mix(in srgb, var(--card-accent) 55%, transparent),
+            0 0 42px rgba(var(--accent-rgb), 0.35);
+    }
+    70% {
+        opacity: 1;
+        filter: grayscale(0.2) saturate(1.15);
+    }
+    100% {
+        opacity: 0.45;
+        filter: grayscale(0.85);
+    }
 }
 
 .subscription-category__header,

@@ -205,7 +205,10 @@
     function readSubscriptions() {
         try {
             const stored = localStorage.getItem(storageKey);
-            if (stored === null) return new Set();
+            if (stored === null) {
+                // First visit: start with all implemented activities.
+                return new Set(implementedActivities.map((activity) => activity.id));
+            }
             const ids = JSON.parse(stored);
             if (Array.isArray(ids)) {
                 const knownIds = new Set(activities.map((activity) => activity.id));
@@ -216,7 +219,7 @@
                 return new Set([...storedIds].filter((id) => implementedActivities.some((activity) => activity.id === id)));
             }
         } catch { /* storage unavailable or invalid — start without subscriptions */ }
-        return new Set();
+        return new Set(implementedActivities.map((activity) => activity.id));
     }
 
     function readDebugMode() {
@@ -580,6 +583,16 @@
         });
     }
 
+    function flashPreviewIcons() {
+        dialogContent.querySelectorAll(".subscription-card--preview").forEach((card, index) => {
+            card.style.setProperty("--flash-delay", `${index * 45}ms`);
+            card.classList.remove("is-flash");
+            void card.offsetWidth;
+            card.classList.add("is-flash");
+            card.addEventListener("animationend", () => card.classList.remove("is-flash"), { once: true });
+        });
+    }
+
     function renderSubscriptionDialog() {
         dialogContent.replaceChildren();
         categories.forEach((category) => {
@@ -633,6 +646,7 @@
                 pendingSubscriptions = new Set([...pendingSubscriptions].filter((id) => implementedActivities.some((activity) => activity.id === id)));
             }
             renderSubscriptionDialog();
+            if (debugMode) flashPreviewIcons();
             return;
         }
         if (input.dataset.subscriptionActivity) {
