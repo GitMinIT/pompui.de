@@ -45,7 +45,7 @@ The previous blocking issue in which the active tile could disappear is resolved
 - **pompui-landing**: static landing page (nginx-unprivileged:alpine, non-root, port 8080).
 - **pompui-punctum**: Punctum app (separate repo in `repos/punctum`, static nginx, port 8080).
 - **pompui-snapotter**: SnapOtter 2.2.0 file-processing suite (AGPL-3.0, embedded PostgreSQL/Redis, port 1349). **Licence compliance is mandatory** — see `sites/landing-page/html/sites/snapotter/COMPLIANCE.md` before updating it: pin image digest, update source offer, keep `repos/snapotter` checkout at the running tag. Auth enabled, telemetry off, password in `secrets/snapotter-password`.
-- **pompui-vtracer**: VTracer webapp (raster→vector, MIT/Apache-2.0, built from source via wasm-pack+webpack, port 8080). Client-side processing only (wasm in browser).
+- **pompui-vtracer**: VTracer webapp (raster→vector, MIT/Apache-2.0, built from source via wasm-pack+webpack, port 8080). Clone at `repos/vtracer` currently tracks **DaScoob/vtracer:feature/pompui-ui** (POMPUI UI fork; fork added as remote `fork`), NOT upstream master. Client-side processing only (wasm in browser).
 
 ## Deployment
 1. `docker compose up -d --build` in this directory (builds `pompui-landing`, joins external `web-network`).
