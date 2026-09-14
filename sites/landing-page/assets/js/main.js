@@ -45,7 +45,8 @@
             accentRgb: "155, 234, 117",
             href: appUrl.garden,
             repo: "https://github.com/DaScoob/Garden-Journal",
-            action: "Aktivität starten"
+            action: "Aktivität starten",
+            implemented: true
         },
         {
             id: "snapotter",
@@ -58,7 +59,8 @@
             accentRgb: "224, 120, 50",
             href: appUrl.snapotter,
             repo: "https://github.com/snapotter-hq/SnapOtter",
-            action: "Aktivität starten"
+            action: "Aktivität starten",
+            implemented: true
         },
         {
             id: "punctum",
@@ -71,7 +73,8 @@
             accentRgb: "178, 140, 255",
             href: appUrl.punctum,
             repo: "https://github.com/GitMinIT/Punctum",
-            action: "Aktivität starten"
+            action: "Aktivität starten",
+            implemented: true
         },
         {
             id: "vtracer",
@@ -84,7 +87,8 @@
             accentRgb: "62, 198, 184",
             href: appUrl.vtracer,
             repo: "https://github.com/visioncortex/vtracer",
-            action: "Aktivität starten"
+            action: "Aktivität starten",
+            implemented: true
         }
     ];
 
@@ -124,6 +128,9 @@
         ["#d5d86c", "213, 216, 108"]
     ];
 
+    const implementedActivities = activities.filter((activity) => activity.implemented);
+    const previewActivities = activities.filter((activity) => !activity.implemented);
+
     dummyActivities.forEach((entry, index) => {
         const accent = dummyAccents[index % dummyAccents.length];
         activities.push({
@@ -157,6 +164,7 @@
 
     const storageKey = "pompui-activity-subscriptions-v2";
     const lastActivityKey = "pompui-last-activity-v2";
+    const debugKey = "pompui-subscription-debug";
     const root = document.documentElement;
     const page = document.body;
     const carousel = document.querySelector("[data-carousel]");
@@ -180,6 +188,7 @@
 
     let subscriptions = readSubscriptions();
     let pendingSubscriptions = new Set(subscriptions);
+    let debugMode = readDebugMode();
     let visibleActivities = [];
     let tiles = [];
     let activeIndex = 0;
@@ -200,10 +209,22 @@
             const ids = JSON.parse(stored);
             if (Array.isArray(ids)) {
                 const knownIds = new Set(activities.map((activity) => activity.id));
-                return new Set(ids.filter((id) => knownIds.has(id)));
+                const storedIds = new Set(ids.filter((id) => knownIds.has(id)));
+                // Preview ("not implemented") activities are only kept when the
+                // debug switch is on; otherwise they never show in the wheel.
+                if (readDebugMode()) return storedIds;
+                return new Set([...storedIds].filter((id) => implementedActivities.some((activity) => activity.id === id)));
             }
         } catch { /* storage unavailable or invalid — start without subscriptions */ }
         return new Set();
+    }
+
+    function readDebugMode() {
+        try { return localStorage.getItem(debugKey) === "1"; } catch { return false; }
+    }
+
+    function writeDebugMode(enabled) {
+        try { localStorage.setItem(debugKey, enabled ? "1" : "0"); } catch { /* storage blocked */ }
     }
 
     function createElement(tag, className, text) {
@@ -513,6 +534,11 @@
         }
         const restoredIndex = visibleActivities.findIndex((activity) => activity.id === restoredId);
         activeIndex = restoredIndex >= 0 ? restoredIndex : 0;
+        if (activeIndex === 0 && restoredId !== subscriptionActivity.id) {
+            // Default to the first implemented activity, never the debug entry tile.
+            const preferredImplemented = visibleActivities.findIndex((activity) => !activity.system);
+            if (preferredImplemented > 0) activeIndex = preferredImplemented;
+        }
         currentPosition = activeIndex;
         targetPosition = activeIndex;
         renderWheelPositions(false, true);
@@ -520,50 +546,72 @@
 
     function updateDialogState() {
         dialogContent.querySelectorAll("[data-subscription-activity]").forEach((input) => {
-            input.checked = pendingSubscriptions.has(input.dataset.subscriptionActivity);
+            const activityId = input.dataset.subscriptionActivity;
+            input.checked = pendingSubscriptions.has(activityId);
+            input.disabled = !debugMode && previewActivities.some((activity) => activity.id === activityId);
         });
+        const selectableIds = (debugMode ? activities : implementedActivities).map((activity) => activity.id);
         dialogContent.querySelectorAll("[data-subscription-category]").forEach((input) => {
-            const ids = activities.filter((activity) => activity.category === input.dataset.subscriptionCategory).map((activity) => activity.id);
+            const ids = activities.filter((activity) => activity.category === input.dataset.subscriptionCategory && selectableIds.includes(activity.id)).map((activity) => activity.id);
             const selectedCount = ids.filter((id) => pendingSubscriptions.has(id)).length;
-            input.checked = selectedCount === ids.length;
+            input.checked = ids.length > 0 && selectedCount === ids.length;
             input.indeterminate = selectedCount > 0 && selectedCount < ids.length;
         });
-        dialogCount.textContent = `${pendingSubscriptions.size} von ${activities.length} abonniert`;
+        dialogCount.textContent = `${pendingSubscriptions.size} von ${selectableIds.length} abonniert`;
+    }
+
+    function appendSubscriptionCards(grid, categoryActivities) {
+        categoryActivities.forEach((activity) => {
+            const item = createElement("label", "subscription-card");
+            if (!activity.implemented) item.classList.add("subscription-card--preview");
+            const input = createElement("input", "subscription-checkbox");
+            input.type = "checkbox";
+            input.dataset.subscriptionActivity = activity.id;
+            const iconSurface = createElement("span", "subscription-card__icon-surface");
+            iconSurface.append(createActivityIcon(activity, "subscription-card__icon"));
+            const copy = createElement("span", "subscription-card__copy");
+            copy.append(
+                createElement("span", "subscription-card__title", activity.title),
+                createElement("span", "subscription-card__meta", activity.implemented ? "Verfügbar" : "Vorschau · noch nicht implementiert")
+            );
+            item.style.setProperty("--card-accent", activity.accent);
+            item.append(input, iconSurface, copy);
+            grid.append(item);
+        });
     }
 
     function renderSubscriptionDialog() {
         dialogContent.replaceChildren();
         categories.forEach((category) => {
+            const categoryActivities = activities.filter((activity) => activity.category === category.id);
+            const liveActivities = categoryActivities.filter((activity) => activity.implemented);
+            const previewActivitiesOfCategory = categoryActivities.filter((activity) => !activity.implemented);
             const section = createElement("section", "subscription-category");
             const header = createElement("label", "subscription-category__header");
             const categoryInput = createElement("input", "subscription-checkbox");
             categoryInput.type = "checkbox";
             categoryInput.dataset.subscriptionCategory = category.id;
             const heading = createElement("span", "subscription-category__title", category.title);
-            const categoryTotal = activities.filter((activity) => activity.category === category.id).length;
+            const categoryTotal = (debugMode ? categoryActivities : liveActivities).length;
             header.append(categoryInput, heading, createElement("span", "subscription-category__total", String(categoryTotal)));
             section.append(header);
 
             const grid = createElement("div", "subscription-grid");
-            activities.filter((activity) => activity.category === category.id).forEach((activity) => {
-                const item = createElement("label", "subscription-card");
-                const input = createElement("input", "subscription-checkbox");
-                input.type = "checkbox";
-                input.dataset.subscriptionActivity = activity.id;
-                const iconSurface = createElement("span", "subscription-card__icon-surface");
-                iconSurface.append(createActivityIcon(activity, "subscription-card__icon"));
-                const copy = createElement("span", "subscription-card__copy");
-                copy.append(
-                    createElement("span", "subscription-card__title", activity.title),
-                    createElement("span", "subscription-card__meta", activity.status === "Bereit" ? "Verfügbar" : "Vorschau · inaktiv")
-                );
-                item.style.setProperty("--card-accent", activity.accent);
-                item.append(input, iconSurface, copy);
-                grid.append(item);
-            });
+            appendSubscriptionCards(grid, liveActivities);
             section.append(grid);
+
+            if (previewActivitiesOfCategory.length) {
+                section.classList.add("subscription-category--split");
+                section.append(createElement("div", "subscription-category__separator"));
+                const previewGrid = createElement("div", "subscription-grid subscription-grid--preview");
+                appendSubscriptionCards(previewGrid, previewActivitiesOfCategory);
+                section.append(previewGrid);
+            }
             dialogContent.append(section);
         });
+
+        const headerDebugInput = dialog.querySelector("[data-subscription-debug]");
+        if (headerDebugInput) headerDebugInput.checked = debugMode;
         updateDialogState();
     }
 
@@ -577,12 +625,22 @@
     dialogContent.addEventListener("change", (event) => {
         const input = event.target;
         if (!(input instanceof HTMLInputElement)) return;
+        if (input.dataset.subscriptionDebug) {
+            debugMode = input.checked;
+            writeDebugMode(debugMode);
+            if (!debugMode) {
+                // Leaving debug mode: drop any preview activities from the pending set.
+                pendingSubscriptions = new Set([...pendingSubscriptions].filter((id) => implementedActivities.some((activity) => activity.id === id)));
+            }
+            renderSubscriptionDialog();
+            return;
+        }
         if (input.dataset.subscriptionActivity) {
             if (input.checked) pendingSubscriptions.add(input.dataset.subscriptionActivity);
             else pendingSubscriptions.delete(input.dataset.subscriptionActivity);
         }
         if (input.dataset.subscriptionCategory) {
-            activities.filter((activity) => activity.category === input.dataset.subscriptionCategory).forEach((activity) => {
+            (debugMode ? activities : implementedActivities).filter((activity) => activity.category === input.dataset.subscriptionCategory).forEach((activity) => {
                 if (input.checked) pendingSubscriptions.add(activity.id);
                 else pendingSubscriptions.delete(activity.id);
             });
@@ -591,7 +649,7 @@
     });
 
     confirmDialogButton.addEventListener("click", () => {
-        subscriptions = new Set(pendingSubscriptions);
+        subscriptions = new Set(debugMode ? pendingSubscriptions : [...pendingSubscriptions].filter((id) => implementedActivities.some((activity) => activity.id === id)));
         try { localStorage.setItem(storageKey, JSON.stringify(Array.from(subscriptions))); } catch { /* storage blocked */ }
         dialog.close();
         renderCarousel(subscriptionActivity.id);
