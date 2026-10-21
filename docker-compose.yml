@@ -56,6 +56,40 @@ services:
       - web-network
     restart: always
 
+  pompui-leafguru:
+    # LeafGuru lives in its own repository, cloned into repos/leafguru
+    # (see repos/README.md). Django + whitenoise, port 8090.
+    build: ./repos/leafguru
+    container_name: pompui-leafguru
+    environment:
+      - LEAFGURU_DEBUG=0
+      # the app is behind the TLS-terminating proxy
+      - LEAFGURU_BEHIND_PROXY=1
+      - LEAFGURU_PUBLIC_URL=https://leafguru.pompui.de
+      - LEAFGURU_POMPUI_URL=https://pompui.de/
+      - LEAFGURU_POMPUI_IMPRESSUM_URL=https://pompui.de/impressum
+      # the data (database + uploaded photos) lives on the volume below
+      - LEAFGURU_DATA_DIR=/data
+    volumes:
+      - pompui-leafguru-data:/data
+    # The app runs as its own unprivileged user (uid 1000); the entry
+    # point fixes the data volume's ownership once and then drops
+    # privileges, so these caps are all it needs.
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETUID
+      - SETGID
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - pompui-network
+      - web-network
+    restart: always
+
   pompui-snapotter:
     # SnapOtter lives in its own repository, cloned into repos/snapotter
     # (see repos/README.md). AGPL-3.0: we run the **digest-pinned upstream
@@ -104,6 +138,7 @@ services:
         max-file: "3"
 
 volumes:
+  pompui-leafguru-data:
   pompui-snapotter-data:
   pompui-snapotter-workspace:
 

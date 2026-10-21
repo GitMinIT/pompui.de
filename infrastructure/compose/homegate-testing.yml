@@ -15,6 +15,7 @@
 #                               healthy; needs secrets/snapotter-password)
 #   vtracer.pompui.de        -> 6015 (this repo; heavy one-time build:
 #                               Rust→wasm + webpack, ~10 min cold build)
+#   leafguru.pompui.de       -> 6019 (this repo; Django + whitenoise)
 #
 # The external `web-network` (created by the daniel-hettich.de project) is not
 # needed in this workflow; joining it would fail when that stack is not up.
@@ -52,3 +53,17 @@ services:
       - "6015:8080"
     networks: !override
       - pompui-network
+
+  pompui-leafguru:
+    ports: !override
+      - "6019:8090"
+    networks: !override
+      - pompui-network
+    # locally the "Home" button points at the local landing page, and
+    # the public URL is the direct port (no proxy, no TLS here)
+    environment: !override
+      - LEAFGURU_DEBUG=0
+      - LEAFGURU_PUBLIC_URL=http://192.168.178.60:6019
+      - LEAFGURU_POMPUI_URL=http://192.168.178.60:6010/
+      - LEAFGURU_POMPUI_IMPRESSUM_URL=http://192.168.178.60:6010/impressum
+      - LEAFGURU_DATA_DIR=/data
