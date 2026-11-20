@@ -1,7 +1,8 @@
 # repos/ — Hosted Apps
 
 This folder holds the **separate git repositories of every app hosted on
-pompui.de** (currently: `punctum`, `garden-journal`, `snapotter`). Each app
+pompui.de** (currently: `punctum`, `garden-journal`, `snapotter`, `vtracer`,
+`leafguru`, `metronome`). Each app
 gets its own GitHub repository and is cloned into this tree; the pompui.de
 repo only provides the infrastructure (compose service, nginx routing,
 carousel entry) around it.
@@ -18,6 +19,7 @@ repos/
   garden-journal/ # github.com/DaScoob/Garden-Journal (Mein Gemüsegarten, Next.js/vinext, port 3000)
   snapotter/      # github.com/snapotter-hq/SnapOtter @v2.2.0 (file processing, AGPL-3.0, port 1349)
   vtracer/        # DaScoob/vtracer:feature/pompui-ui (POMPUI fork; upstream visioncortex core, MIT/Apache-2.0, port 8080)
+  metronome/      # github.com/mackushev/metronome (browser metronome, Web Audio, static Vite build, port 8080)
 ```
 
 **Special case — snapotter (AGPL-3.0):** the compose service does **not**

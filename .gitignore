@@ -31,3 +31,11 @@ repos/vtracer/webapp/app/pkg/
 repos/vtracer/webapp/app/node_modules/
 repos/vtracer/webapp/app/dist/
 repos/vtracer/webapp/pkg/
+
+# Same exception for metronome: it is built from the clone (repos/README.md),
+# so only its hosting files (Dockerfile, nginx.conf) are tracked — the upstream
+# clone sources stay ignored.
+!repos/metronome/
+repos/metronome/*
+!repos/metronome/Dockerfile
+!repos/metronome/nginx.conf

@@ -32,6 +32,7 @@ Internet ──> :80/:443 global-proxy (nginx, SSL termination)
                  ├── punctum.pompui.de ──> pompui-punctum:8080
                  ├── gj.pompui.de ──> pompui-garden-journal:3000
                  ├── snapotter.pompui.de ──> pompui-snapotter:1349
+                 ├── metronome.pompui.de ──> pompui-metronome:8080
                  └── (daniel-hettich.de route)
 ```
 
@@ -65,7 +66,7 @@ Internet ──> :80/:443 global-proxy (nginx, SSL termination)
 | 80 | `global-proxy` | HTTP → redirect to HTTPS |
 | 443 | `global-proxy` | HTTPS (SSL termination) |
 | 3000 | `pompui-garden-journal` (internal) | Node app (cloned from DaScoob/Garden-Journal), only reachable inside the docker network |
-| 8080 | `pompui-landing` / `pompui-punctum` (internal) | static nginx containers |
+| 8080 | `pompui-landing` / `pompui-punctum` / `pompui-metronome` (internal) | static nginx containers |
 | 1349 | `pompui-snapotter` (internal) | SnapOtter app (digest-pinned upstream image) |
 
 **Only ports 80/443 are free to be used by this project — and only via the global-proxy.** Do not publish additional host ports.

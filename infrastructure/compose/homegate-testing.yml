@@ -15,6 +15,8 @@
 #                               healthy; needs secrets/snapotter-password)
 #   vtracer.pompui.de        -> 6015 (this repo; heavy one-time build:
 #                               Rust→wasm + webpack, ~10 min cold build)
+#   metronome.pompui.de      -> 6022 (this repo; static Vite build; 6016-6018
+#                               are taken by other services on this host)
 #   leafguru.pompui.de       -> 6019 (this repo; Django + whitenoise)
 #
 # The external `web-network` (created by the daniel-hettich.de project) is not
@@ -51,6 +53,12 @@ services:
   pompui-vtracer:
     ports: !override
       - "6015:8080"
+    networks: !override
+      - pompui-network
+
+  pompui-metronome:
+    ports: !override
+      - "6022:8080"
     networks: !override
       - pompui-network
 
