@@ -21,6 +21,7 @@ The previous blocking issue in which the active tile could disappear is resolved
   - `gj.pompui.de` → **6013**
   - `snapotter.pompui.de` → **6014** (embedded PostgreSQL/Redis; first boot takes a while; needs `secrets/snapotter-password`)
   - `vtracer.pompui.de` → **6015** (heavy one-time build: Rust→wasm + webpack)
+  - `metronome.pompui.de` → **6022** (static Vite build; 6016–6018 are taken by other services on this host)
 - The external `web-network` join is overridden away — the daniel-hettich.de stack does not need to be running for testing this repo.
 - daniel-hettich.de testing runs directly on **6009** from the daniel-hettich.de repo (see its AGENTS.md).
 - Verify: `curl http://192.168.178.60:6010/` (or `http://<LAN-IP>:<port>` from any device).
@@ -42,10 +43,12 @@ The previous blocking issue in which the active tile could disappear is resolved
   - `punctum.pompui.de` → `pompui-punctum:8080`
   - `snapotter.pompui.de` → `pompui-snapotter:1349`
   - `vtracer.pompui.de` → `pompui-vtracer:8080`
+  - `metronome.pompui.de` → `pompui-metronome:8080`
 - **pompui-landing**: static landing page (nginx-unprivileged:alpine, non-root, port 8080).
 - **pompui-punctum**: Punctum app (separate repo in `repos/punctum`, static nginx, port 8080).
 - **pompui-snapotter**: SnapOtter 2.2.0 file-processing suite (AGPL-3.0, embedded PostgreSQL/Redis, port 1349). **Licence compliance is mandatory** — see `sites/landing-page/html/sites/snapotter/COMPLIANCE.md` before updating it: pin image digest, update source offer, keep `repos/snapotter` checkout at the running tag. Auth enabled, telemetry off, password in `secrets/snapotter-password`.
 - **pompui-vtracer**: VTracer webapp (raster→vector, MIT/Apache-2.0, built from source via wasm-pack+webpack, port 8080). Clone at `repos/vtracer` currently tracks **DaScoob/vtracer:feature/pompui-ui** (POMPUI UI fork; fork added as remote `fork`), NOT upstream master. Client-side processing only (wasm in browser).
+- **pompui-metronome**: Metronome webapp (browser metronome, Web Audio, speed trainer) from `repos/metronome` (github.com/mackushev/metronome). Static Vite build (`--base=/`) served by nginx-unprivileged, port 8080. Fully client-side; settings in localStorage.
 
 ## Deployment
 1. `docker compose up -d --build` in this directory (builds `pompui-landing`, joins external `web-network`).
