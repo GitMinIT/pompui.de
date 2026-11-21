@@ -195,7 +195,8 @@
         technology: ["M18 18h28v28H18z", "M25 25h14v14H25z", "M18 26h-6M18 38h-6M52 26h-6M52 38h-6M26 18v-6M38 18v-6M26 52v-6M38 52v-6"]
     };
 
-    const storageKey = "pompui-activity-subscriptions-v2";
+    const storageKey = "pompui-activity-subscriptions-v3";
+    const knownImplementedKey = "pompui-known-implemented-v3";
     const lastActivityKey = "pompui-last-activity-v2";
     const debugKey = "pompui-subscription-debug";
     const root = document.documentElement;
@@ -235,11 +236,18 @@
     let suppressClickUntil = 0;
     let sceneFrame = 0;
 
+    function rememberImplemented() {
+        try {
+            localStorage.setItem(knownImplementedKey, JSON.stringify(implementedActivities.map((activity) => activity.id)));
+        } catch { /* storage blocked */ }
+    }
+
     function readSubscriptions() {
         try {
             const stored = localStorage.getItem(storageKey);
             if (stored === null) {
                 // First visit: start with all implemented activities.
+                rememberImplemented();
                 return new Set(implementedActivities.map((activity) => activity.id));
             }
             const ids = JSON.parse(stored);
@@ -249,7 +257,24 @@
                 // Preview ("not implemented") activities are only kept when the
                 // debug switch is on; otherwise they never show in the wheel.
                 if (readDebugMode()) return storedIds;
-                return new Set([...storedIds].filter((id) => implementedActivities.some((activity) => activity.id === id)));
+
+                // An activity implemented after the visitor's last visit is new
+                // to them, so add it once. Deliberate removals stay removed on
+                // later visits because the id is recorded as known below.
+                const implementedIds = implementedActivities.map((activity) => activity.id);
+                const implementedSet = new Set(implementedIds);
+                let previouslyKnown = [];
+                try {
+                    const rawKnown = localStorage.getItem(knownImplementedKey);
+                    const parsedKnown = rawKnown === null ? [] : JSON.parse(rawKnown);
+                    if (Array.isArray(parsedKnown)) previouslyKnown = parsedKnown;
+                } catch { /* ignore broken state */ }
+                const knownImplemented = new Set(previouslyKnown);
+                const newlyImplemented = implementedIds.filter((id) => !knownImplemented.has(id));
+                rememberImplemented();
+
+                const subscribed = [...storedIds].filter((id) => implementedSet.has(id));
+                return new Set([...subscribed, ...newlyImplemented]);
             }
         } catch { /* storage unavailable or invalid — start without subscriptions */ }
         return new Set(implementedActivities.map((activity) => activity.id));
