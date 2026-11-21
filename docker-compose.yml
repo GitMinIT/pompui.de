@@ -46,6 +46,8 @@ services:
     # repos/garden-journal (see repos/README.md).
     build: ./repos/garden-journal
     container_name: pompui-garden-journal
+    # Runs as an unprivileged user; verified serving 200 as uid 1000 before rollout.
+    user: "1000:1000"
     cap_drop:
       - ALL
     security_opt:
