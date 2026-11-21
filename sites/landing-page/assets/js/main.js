@@ -8,7 +8,6 @@
         snapotter: `http${isProduction ? "s" : ""}://${isProduction ? "snapotter.pompui.de" : window.location.hostname + port(6014)}/`,
         punctum: `http${isProduction ? "s" : ""}://${isProduction ? "punctum.pompui.de" : window.location.hostname + port(6012)}/`,
         vtracer: `http${isProduction ? "s" : ""}://${isProduction ? "vtracer.pompui.de" : window.location.hostname + port(6015)}/`,
-        leafguru: `http${isProduction ? "s" : ""}://${isProduction ? "leafguru.pompui.de" : window.location.hostname + port(6019)}/`,
         metronome: `http${isProduction ? "s" : ""}://${isProduction ? "metronome.pompui.de" : window.location.hostname + port(6022)}/`
     };
 
@@ -93,20 +92,6 @@
             implemented: true
         },
         {
-            id: "leafguru",
-            category: "garden-life",
-            title: "LeafGuru",
-            status: "Bereit",
-            description: "Anbau, Kulturen und Ernte im Blick behalten — Beete, Pflanzen, Aufgaben und Tagesjournal.",
-            meta: "Planen · Pflegen · Ernten",
-            accent: "#7ee08a",
-            accentRgb: "126, 224, 138",
-            href: appUrl.leafguru,
-            repo: "https://github.com/GitMinIT/LeafGuru",
-            action: "Aktivität starten",
-            implemented: true
-        },
-        {
             id: "metronome",
             category: "time-focus",
             title: "Metronome",
@@ -185,7 +170,6 @@
         snapotter: ["M10 20h44v30H10z", "M26 20v-6h12v6", "M10 32h44", "M20 40h6M38 40h6"],
         punctum: ["M32 15a17 17 0 1 1-17 17 17 17 0 0 1 17-17Z", "M32 21v11l8 7", "M49 32h5M10 32h5M32 15v-5M32 49v5"],
         vtracer: ["M10 14h30v30H10z", "M14 38 24 26l8 8 6-6 8 12", "M26 50l8-12 8 12"],
-        leafguru: ["M32 56V26", "M32 33c0-9 5-16 16-18 0 11-6 17-16 18Z", "M32 41c0-7-5-12-13-13 0 9 5 13 13 13Z"],
         metronome: ["M32 8 12 54h40Z", "M32 46V20", "M26 30h12"],
         "garden-life": ["M16 49c15-2 26-14 32-34 3 20-6 35-26 36", "M19 48c5-11 13-19 25-28"],
         "media-design": ["M14 16h36v32H14z", "M20 40l9-10 7 7 5-6 5 9", "M23 25h.01"],

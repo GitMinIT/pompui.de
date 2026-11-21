@@ -2,7 +2,7 @@
 
 This folder holds the **separate git repositories of every app hosted on
 pompui.de** (currently: `punctum`, `garden-journal`, `snapotter`, `vtracer`,
-`leafguru`, `metronome`). Each app
+`metronome`). Each app
 gets its own GitHub repository and is cloned into this tree; the pompui.de
 repo only provides the infrastructure (compose service, nginx routing,
 carousel entry) around it.
