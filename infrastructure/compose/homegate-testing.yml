@@ -17,6 +17,10 @@
 #                               Rust→wasm + webpack, ~10 min cold build)
 #   metronome.pompui.de      -> 6022 (this repo; static Vite build; 6016-6018
 #                               are taken by other services on this host)
+#   peercalls.pompui.de      -> 6023 (this repo; Peer Calls Go server, port 3000)
+#   coturn (STUN/TURN)       -> 3478 udp/tcp + 49160-49200 udp published directly
+#                               (UDP cannot be reverse-proxied; LAN testing only —
+#                               internet clients need the public IP + firewall rules)
 #
 # The external `web-network` (created by the daniel-hettich.de project) is not
 # needed in this workflow; joining it would fail when that stack is not up.
@@ -60,4 +64,37 @@ services:
       - "6022:8080"
     networks: !override
       - pompui-network
+
+  pompui-peercalls:
+    ports: !override
+      - "6023:3000"
+    networks: !override
+      - pompui-network
+    # locally the ICE servers are addressed by LAN IP (no DNS for turn.pompui.de
+    # inside the LAN, no hairpin NAT); same TURN REST secret from .env
+    environment: !override
+      - PEERCALLS_ICE_SERVER_URLS=stun:192.168.178.60:3478,turn:192.168.178.60:3478?transport=udp,turn:192.168.178.60:3478?transport=tcp
+      - PEERCALLS_ICE_SERVER_AUTH_TYPE=secret
+      - PEERCALLS_ICE_SERVER_USERNAME=peercalls
+      - PEERCALLS_ICE_SERVER_SECRET=${COTURN_SECRET}
+
+  pompui-coturn:
+    # ports from the main compose file stay published (3478 + relay range);
+    # only the network join is overridden away from the external web-network,
+    # and coturn advertises the LAN IP so LAN clients can actually reach it
+    networks: !override
+      - pompui-network
+    command: !override
+      - --log-file=stdout
+      - --lt-cred-mech
+      - --fingerprint
+      - --use-auth-secret
+      - --static-auth-secret=${COTURN_SECRET}
+      - --realm=pompui.de
+      - --external-ip=192.168.178.60
+      - --min-port=49160
+      - --max-port=49200
+      - --no-cli
+      - -p
+      - "3478"
 

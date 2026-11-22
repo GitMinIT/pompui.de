@@ -165,6 +165,20 @@
                 abrufbar. Wir hosten einen statischen Build auf unserem eigenen Server. Alle
                 Einstellungen werden ausschließlich lokal im Browser des Nutzers gespeichert
                 (LocalStorage); es findet keine Übertragung an den Server oder Dritte statt.</p>
+
+                <p>Die Anwendung <em>Peer Calls</em> (peercalls.pompui.de) ist eine von Dritten
+                (peer-calls) entwickelte WebRTC-Videoanruf-Anwendung unter der
+                <strong>Apache-2.0-Lizenz</strong>. Wir betreiben einen eigenen Fork
+                (<a href="https://github.com/GitMinIT/peer-calls">github.com/GitMinIT/peer-calls</a>,
+                abgeleitet von
+                <a href="https://github.com/peer-calls/peer-calls">github.com/peer-calls/peer-calls</a>)
+                mit einem angepassten visuellen Theme (POMPUI-Dark); unsere Änderungen sind im
+                Fork als Commit gekennzeichnet. Wir hosten einen Build dieser Quelle auf unserem
+                eigenen Server (Go-Server, Port 3000) sowie einen eigenen STUN/TURN-Server
+                (coturn, UDP/TCP 3478 + UDP 49160–49200). Der Server dient nur der
+                Signalisierung (Raum-Verknüpfung per WebSocket); Audio, Video und Dateien werden
+                direkt peer-to-peer zwischen den Browsern übertragen. Es werden keine Konten
+                geführt und keine Nutzungsdaten dauerhaft gespeichert.</p>
             </section>
 
             <section class="legal-section">

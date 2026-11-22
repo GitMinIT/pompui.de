@@ -71,6 +71,8 @@ Internet ──> :80/:443 global-proxy (nginx, SSL termination)
 
 **Only ports 80/443 are free to be used by this project — and only via the global-proxy.** Do not publish additional host ports.
 
+**Exception (documented):** `pompui-coturn` (STUN/TURN for Peer Calls) publishes **3478 udp/tcp** and **49160–49200 udp** directly on the host — STUN/TURN is UDP/TCP and cannot be reverse-proxied through global-proxy. Internet clients require the firewall to allow those ports on this host and `COTURN_EXTERNAL_IP` (public IP) set in `.env`.
+
 ## Conventions (copied from the daniel-hettich.de project)
 
 - App source code in `sites/<name>/` (landing page) or cloned into `repos/<name>/` (hosted apps — see `repos/README.md`), each with its own `Dockerfile` (+ `nginx.conf` for static sites).

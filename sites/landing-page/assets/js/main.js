@@ -8,7 +8,8 @@
         snapotter: `http${isProduction ? "s" : ""}://${isProduction ? "snapotter.pompui.de" : window.location.hostname + port(6014)}/`,
         punctum: `http${isProduction ? "s" : ""}://${isProduction ? "punctum.pompui.de" : window.location.hostname + port(6012)}/`,
         vtracer: `http${isProduction ? "s" : ""}://${isProduction ? "vtracer.pompui.de" : window.location.hostname + port(6015)}/`,
-        metronome: `http${isProduction ? "s" : ""}://${isProduction ? "metronome.pompui.de" : window.location.hostname + port(6022)}/`
+        metronome: `http${isProduction ? "s" : ""}://${isProduction ? "metronome.pompui.de" : window.location.hostname + port(6022)}/`,
+        peercalls: `http${isProduction ? "s" : ""}://${isProduction ? "peercalls.pompui.de" : window.location.hostname + port(6023)}/`
     };
 
     const categories = [
@@ -104,6 +105,20 @@
             repo: "https://github.com/mackushev/metronome",
             action: "Aktivität starten",
             implemented: true
+        },
+        {
+            id: "peercalls",
+            category: "technology",
+            title: "Peer Calls",
+            status: "Bereit",
+            description: "WebRTC-Videoanrufe direkt von Browser zu Browser — ohne Konto und ohne zentrale Medienübertragung.",
+            meta: "Anrufen · Teilen · P2P · Apache-2.0",
+            accent: "#4da3ff",
+            accentRgb: "77, 163, 255",
+            href: appUrl.peercalls,
+            repo: "https://github.com/GitMinIT/peer-calls",
+            action: "Aktivität starten",
+            implemented: true
         }
     ];
 
@@ -171,6 +186,7 @@
         punctum: ["M32 15a17 17 0 1 1-17 17 17 17 0 0 1 17-17Z", "M32 21v11l8 7", "M49 32h5M10 32h5M32 15v-5M32 49v5"],
         vtracer: ["M10 14h30v30H10z", "M14 38 24 26l8 8 6-6 8 12", "M26 50l8-12 8 12"],
         metronome: ["M32 8 12 54h40Z", "M32 46V20", "M26 30h12"],
+        peercalls: ["M10 22a4 4 0 0 1 4-4h22a4 4 0 0 1 4 4v20a4 4 0 0 1-4 4H14a4 4 0 0 1-4-4Z", "M40 30l14-8v24l-14-8Z", "M18 32h.01M22 28h.01"],
         "garden-life": ["M16 49c15-2 26-14 32-34 3 20-6 35-26 36", "M19 48c5-11 13-19 25-28"],
         "media-design": ["M14 16h36v32H14z", "M20 40l9-10 7 7 5-6 5 9", "M23 25h.01"],
         "time-focus": ["M32 13a19 19 0 1 1-19 19 19 19 0 0 1 19-19Z", "M32 21v12l8 5"],

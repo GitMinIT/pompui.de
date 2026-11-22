@@ -22,6 +22,19 @@ repos/
   metronome/      # github.com/mackushev/metronome (browser metronome, Web Audio, static Vite build, port 8080)
 ```
 
+**Exception — peercalls does NOT live in `repos/`:** it is cloned as a
+**sibling of this repo** and the compose service builds from `../PeerCalls`:
+
+```
+# next to the pompui.de checkout, e.g. /var/www/PeerCalls:
+git clone https://github.com/GitMinIT/peer-calls.git PeerCalls
+cd PeerCalls && git checkout feature/pompui-dark-theme   # our themed fork
+```
+
+(github.com/GitMinIT/peer-calls, Apache-2.0; `upstream` remote =
+peer-calls/peer-calls is read-only. The STUN/TURN server for it is the
+`pompui-coturn` compose service — see AGENTS.md.)
+
 **Special case — snapotter (AGPL-3.0):** the compose service does **not**
 build from the clone; it pulls the digest-pinned upstream image
 (`snapotter/snapotter@sha256:…`). The clone exists for AGPL Corresponding

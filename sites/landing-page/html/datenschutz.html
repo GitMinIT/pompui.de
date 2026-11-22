@@ -175,7 +175,34 @@
         werden per Web Audio API direkt in Ihrem Browser erzeugt. Es werden keine Daten an den
         Server oder an Dritte übertragen.</p>
 
-        <h2>12. Keine Newsletter, kein Kundenkonto, keine Social-Media-Plugins</h2>
+        <h2>12. Peer Calls (peercalls.pompui.de)</h2>
+        <p>Auf peercalls.pompui.de betreiben wir die Open-Source-Anwendung <em>Peer Calls</em>
+        (WebRTC-Videoanrufe, Apache-2.0-Lizenz, Fork mit angepasstem Theme). Bei der Nutzung
+        eines Anrufs werden technisch bedingt verarbeitet:</p>
+        <ul>
+            <li>die von Ihnen gewählte Raum-ID (Anruf-Link) sowie die Signalisierungsdaten
+                (SDP/ICE-Kandidaten) über die WebSocket-Verbindung zum Signalisierungsserver</li>
+            <li>Ihre IP-Adresse in den technischen Verbindungsdaten (Logfiles)</li>
+        </ul>
+        <p>Es gibt keine Konten und keine dauerhafte Speicherung: Räume und ihre Daten liegen nur
+        flüchtig im Arbeitsspeicher des Servers und werden nach Ende des Anrufs verworfen. Audio-,
+        Video- und Dateiübertragungen laufen nicht über unseren Server, sondern direkt
+        peer-to-peer zwischen den beteiligten Browsern (WebRTC). Es werden keine Cookies gesetzt
+        und keine Nutzungsstatistiken an Dritte übermittelt.</p>
+        <p>Zur Verbindungsaufnahme (NAT-Erkennung, ICE) nutzen die beteiligten Browser ausschließlich
+        unseren eigenen STUN/TURN-Server (<em>pompui-coturn</em>, coturn, auf demselben Server innerhalb
+        der EU). Es findet keine Übermittlung an Drittanbieter statt — siehe Abschnitt 15
+        (Drittlandtransfers). Fällt die direkte Peer-to-Peer-Verbindung aus (z. B. symmetrisches NAT),
+        wird der Medienverkehr über unseren TURN-Server <em>relayed</em>: Dabei passieren die Datenpakete
+        unseren Server, sind aber durch WebRTC immer SRTP-verschlüsselt (der Server kann den Inhalt
+        nicht lesen); es werden lediglich Verbindungsmetadaten (IP-Adressen, Ports, Datenvolumen)
+        verarbeitet.</p>
+        <p><strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. b DSGVO (bereitgestellter Dienst) sowie
+        Art. 6 Abs. 1 lit. f DSGVO (Sicherheit und Missbrauchsabwehr).</p>
+        <p>Die Anwendung steht unter der Apache-2.0-Lizenz; der Quellcode unseres Forks ist über die
+        im Impressum verlinkten Stellen abrufbar.</p>
+
+        <h2>13. Keine Newsletter, kein Kundenkonto, keine Social-Media-Plugins</h2>
         <p>Auf dieser Website besteht keine Möglichkeit, ein Kundenkonto anzulegen (ausgenommen die im
         Abschnitt 10 beschriebene lokale SnapOtter-Anwendung, deren Zugänge ausschließlich durch den
         Betreiber angelegt werden), einen
@@ -192,7 +219,7 @@
         gelöscht, sobald die Anfrage abschließend beantwortet ist und keine weitergehenden
         Aufbewahrungspflichten bestehen. Gesetzliche Aufbewahrungsfristen bleiben unberührt.</p>
 
-        <h2>13. Speicherfristen und Löschkonzept</h2>
+        <h2>14. Speicherfristen und Löschkonzept</h2>
         <p>Personenbezogene Daten werden nur so lange gespeichert, wie dies für den jeweiligen
         Verarbeitungszweck erforderlich ist oder gesetzliche Aufbewahrungsfristen dies gebieten.
         Im Einzelnen gelten folgende Fristen:</p>
@@ -209,12 +236,13 @@
         <p>Nach Ablauf der jeweiligen Speicherfrist werden die Daten routinemäßig gelöscht oder so
         gesperrt, dass ein Zugriff nicht mehr möglich ist.</p>
 
-        <h2>14. Drittlandtransfers</h2>
+        <h2>15. Drittlandtransfers</h2>
         <p>Es finden keine Übermittlungen personenbezogener Daten in Drittländer (außerhalb der
-        EU/des EWR) statt. Hosting und Anwendungen werden ausschließlich innerhalb der Europäischen
-        Union betrieben.</p>
+        EU/des EWR) statt. Hosting und Anwendungen — einschließlich des STUN/TURN-Servers für
+        Peer Calls (Abschnitt 12) — werden ausschließlich innerhalb der Europäischen Union
+        betrieben.</p>
 
-        <h2>15. Betroffenenrechte</h2>
+        <h2>16. Betroffenenrechte</h2>
         <p>Als betroffene Person stehen Ihnen gegenüber dem Verantwortlichen die nachfolgenden Rechte
         zu. Zur Geltendmachung Ihrer Rechte wenden Sie sich bitte schriftlich oder per E-Mail an
         <a href="mailto:info@daniel-hettich.de">info@daniel-hettich.de</a>.</p>
@@ -274,7 +302,7 @@
         <p>Den Widerspruch können Sie formlos per E-Mail an
         <a href="mailto:info@daniel-hettich.de">info@daniel-hettich.de</a> richten.</p>
 
-        <h2>16. Beschwerderecht bei der Aufsichtsbehörde (Art. 77 DSGVO)</h2>
+        <h2>17. Beschwerderecht bei der Aufsichtsbehörde (Art. 77 DSGVO)</h2>
         <p>Unbeschadet eines anderweitigen verwaltungsrechtlichen oder gerichtlichen Rechtsbehelfs steht
         Ihnen das Recht zu, sich bei einer Datenschutz-Aufsichtsbehörde zu beschweren, wenn Sie der
         Ansicht sind, dass die Verarbeitung der Sie betreffenden personenbezogenen Daten gegen die DSGVO
@@ -282,13 +310,13 @@
         <p>Sie können sich an die Aufsichtsbehörde Ihres gewöhnlichen Aufenthaltsorts, Ihres Arbeitsplatzes
         oder unseres Sitzes wenden.</p>
 
-        <h2>17. Automatisierte Entscheidungsfindung und Profiling (Art. 22 DSGVO)</h2>
+        <h2>18. Automatisierte Entscheidungsfindung und Profiling (Art. 22 DSGVO)</h2>
         <p>Es findet keine automatisierte Entscheidungsfindung einschließlich Profiling im Sinne des
         Art. 22 Abs. 1 und 4 DSGVO statt. Kein Nutzer wird allein auf der Grundlage einer automatisierten
         Verarbeitung einer Entscheidung unterworfen, die ihm gegenüber rechtliche Wirkung entfaltet oder
         ihn in ähnlicher Weise erheblich beeinträchtigt.</p>
 
-        <h2>18. Aktualität und Änderung dieser Datenschutzerklärung</h2>
+        <h2>19. Aktualität und Änderung dieser Datenschutzerklärung</h2>
         <p>Diese Datenschutzerklärung ist aktuell gültig und hat den Stand: September 2026.</p>
         <p>Durch die Weiterentwicklung der Website und der darauf angebotenen Dienste oder aufgrund
         geänderter gesetzlicher Vorgaben kann es notwendig werden, diese Datenschutzerklärung zu ändern.

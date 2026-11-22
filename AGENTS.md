@@ -22,6 +22,8 @@ The previous blocking issue in which the active tile could disappear is resolved
   - `snapotter.pompui.de` → **6014** (embedded PostgreSQL/Redis; first boot takes a while; needs `secrets/snapotter-password`)
   - `vtracer.pompui.de` → **6015** (heavy one-time build: Rust→wasm + webpack)
   - `metronome.pompui.de` → **6022** (static Vite build; 6016–6018 are taken by other services on this host)
+  - `peercalls.pompui.de` → **6023** (Peer Calls Go server, container port 3000; build context is the sibling clone `../PeerCalls`)
+  - **STUN/TURN (`pompui-coturn`)**: **3478 udp/tcp** + **49160–49200 udp** published directly on the host (UDP cannot be reverse-proxied — the one exception to the "only 80/443" rule). Internet use needs firewall rules for those ports and `COTURN_EXTERNAL_IP` (public IP) in `.env`; the homegate override forces the LAN IP. TURN REST auth via `COTURN_SECRET` in `.env` (git-ignored, chmod 600).
 - The external `web-network` join is overridden away — the daniel-hettich.de stack does not need to be running for testing this repo.
 - daniel-hettich.de testing runs directly on **6009** from the daniel-hettich.de repo (see its AGENTS.md).
 - Verify: `curl http://192.168.178.60:6010/` (or `http://<LAN-IP>:<port>` from any device).
@@ -44,11 +46,15 @@ The previous blocking issue in which the active tile could disappear is resolved
   - `snapotter.pompui.de` → `pompui-snapotter:1349`
   - `vtracer.pompui.de` → `pompui-vtracer:8080`
   - `metronome.pompui.de` → `pompui-metronome:8080`
+  - `peercalls.pompui.de` → `pompui-peercalls:3000` (WebSocket signalling; media is P2P)
+- **pompui-coturn** (not proxied): STUN/TURN on host UDP/TCP 3478 + UDP 49160–49200; `turn.pompui.de` resolves to the host via the wildcard DNS record — no nginx conf needed.
 - **pompui-landing**: static landing page (nginx-unprivileged:alpine, non-root, port 8080).
 - **pompui-punctum**: Punctum app (separate repo in `repos/punctum`, static nginx, port 8080).
 - **pompui-snapotter**: SnapOtter 2.2.0 file-processing suite (AGPL-3.0, embedded PostgreSQL/Redis, port 1349). **Licence compliance is mandatory** — see `sites/landing-page/html/sites/snapotter/COMPLIANCE.md` before updating it: pin image digest, update source offer, keep `repos/snapotter` checkout at the running tag. Auth enabled, telemetry off, password in `secrets/snapotter-password`.
 - **pompui-vtracer**: VTracer webapp (raster→vector, MIT/Apache-2.0, built from source via wasm-pack+webpack, port 8080). Clone at `repos/vtracer` currently tracks **DaScoob/vtracer:feature/pompui-ui** (POMPUI UI fork; fork added as remote `fork`), NOT upstream master. Client-side processing only (wasm in browser).
 - **pompui-metronome**: Metronome webapp (browser metronome, Web Audio, speed trainer) from `repos/metronome` (github.com/mackushev/metronome). Static Vite build (`--base=/`) served by nginx-unprivileged, port 8080. Fully client-side; settings in localStorage.
+- **pompui-peercalls**: Peer Calls (WebRTC group video calls, Apache-2.0) from the sibling clone `../PeerCalls` — our fork `github.com/GitMinIT/peer-calls`, remotes `fork` (push) / `upstream` (read-only), currently on branch **`feature/pompui-dark-theme`** (POMPUI dark theme; workflow for app changes: branch off `upstream/master` → commit → `git push fork <branch>` → checkout here → rebuild). Build via the upstream multi-stage Dockerfile (webpack frontend + Go server in a scratch image), port 3000. Mesh mode + in-memory store (no Redis); the container only handles HTTP + `/ws` signalling — media flows P2P. Runs as uid 65534, all caps dropped. ICE servers point at our own **pompui-coturn** (`PEERCALLS_ICE_SERVER_URLS`, TURN REST auth via `PEERCALLS_ICE_SERVER_SECRET` = `COTURN_SECRET` from `.env`) — no Google/Twilio STUN, no third-country transfer (datenschutz §12/§15). Carousel `repo:` and Impressum link the fork since it diverges from upstream.
+- **pompui-coturn**: coturn 4.19.2-r0 (MIT), STUN/TURN for Peer Calls. `use-auth-secret` + `static-auth-secret=${COTURN_SECRET}` (pompui-peercalls mints 24h HMAC credentials; NOT an open relay). Needs `cap_add: NET_BIND_SERVICE` (turnserver exits EPERM without it). Host-published 3478 udp/tcp + 49160–49200 udp; `--external-ip=${COTURN_EXTERNAL_IP}` (public IP in production; homegate override forces 192.168.178.60). Secrets in `.env` (git-ignored): `COTURN_SECRET`, `COTURN_EXTERNAL_IP`.
 
 ## Deployment
 1. `docker compose up -d --build` in this directory (builds `pompui-landing`, joins external `web-network`).

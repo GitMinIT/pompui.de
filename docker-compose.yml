@@ -41,6 +41,101 @@ services:
       - web-network
     restart: always
 
+  pompui-peercalls:
+    # Peer Calls (WebRTC video calls, Apache-2.0) lives in our fork
+    # (github.com/GitMinIT/peer-calls, branch feature/pompui-dark-theme),
+    # cloned as a SIBLING of this repo at ../PeerCalls (see AGENTS.md).
+    # The upstream multi-stage Dockerfile builds the React frontend
+    # (webpack) and the Go server into a single static binary (FROM scratch)
+    # that serves HTTP + WebSocket signalling on port 3000; media flows
+    # peer-to-peer, not via this container. Mesh mode + in-memory store by
+    # default, so no Redis needed.
+    build: ../PeerCalls
+    container_name: pompui-peercalls
+    environment:
+      # Use our own STUN/TURN server (pompui-coturn) instead of the default
+      # public Google/Twilio STUN servers — no client IP is ever sent to a
+      # third country (see datenschutz.html §12/§14). TURN REST auth: the
+      # server mints 24h HMAC credentials from the shared secret
+      # (PEERCALLS_ICE_SERVER_SECRET, from .env / COTURN_SECRET).
+      # Production ICE URLs (turn.pompui.de); the homegate-testing override
+      # points these at the LAN IP.
+      - PEERCALLS_ICE_SERVER_URLS=stun:turn.pompui.de:3478,turn:turn.pompui.de:3478?transport=udp,turn:turn.pompui.de:3478?transport=tcp
+      - PEERCALLS_ICE_SERVER_AUTH_TYPE=secret
+      - PEERCALLS_ICE_SERVER_USERNAME=peercalls
+      - PEERCALLS_ICE_SERVER_SECRET=${COTURN_SECRET}
+    # scratch image has no /etc/passwd — run as numeric non-root uid
+    # (port 3000 is unprivileged, so no caps are needed)
+    user: "65534:65534"
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp
+    # keep container logs bounded (they contain IPs/room IDs — see
+    # datenschutz.html §4/§12: retention 7-30 days, then deletion)
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "3"
+    networks:
+      - pompui-network
+      - web-network
+    restart: always
+
+  pompui-coturn:
+    # STUN/TURN server for Peer Calls (coturn, MIT) — replaces the default
+    # public Google/Twilio STUN servers, so no third-country transfer of
+    # client IPs (datenschutz.html §12/§14). STUN/TURN is UDP/TCP and cannot
+    # be reverse-proxied, so this is the one documented exception to the
+    # "no host ports" rule: the firewall must allow UDP/TCP 3478 and
+    # UDP 49160-49200 on this host. Auth is TURN REST (use-auth-secret):
+    # pompui-peercalls mints 24h HMAC credentials from COTURN_SECRET (.env),
+    # so this is NOT an open relay.
+    image: coturn/coturn:4.19.2-r0
+    container_name: pompui-coturn
+    command:
+      - --log-file=stdout
+      - --lt-cred-mech
+      - --fingerprint
+      - --use-auth-secret
+      - --static-auth-secret=${COTURN_SECRET}
+      - --realm=pompui.de
+      - --external-ip=${COTURN_EXTERNAL_IP}
+      - --min-port=49160
+      - --max-port=49200
+      - --no-cli
+      - -p
+      - "3478"
+    ports:
+      # all unprivileged ports, but STUN/TURN needs direct host publishing
+      - "3478:3478/udp"
+      - "3478:3478/tcp"
+      - "49160-49200:49160-49200/udp"
+    cap_drop:
+      - ALL
+    cap_add:
+      # turnserver fails at startup with EPERM without CAP_NET_BIND_SERVICE
+      - NET_BIND_SERVICE
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+    # coturn logs client IPs (allocations) — keep logs bounded
+    # (datenschutz.html §4/§12: retention 7-30 days, then deletion)
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "3"
+    networks:
+      - pompui-network
+      - web-network
+    restart: always
+
   pompui-garden-journal:
     # Garden Journal lives in its own repository, cloned into
     # repos/garden-journal (see repos/README.md).
